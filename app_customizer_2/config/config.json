@@ -1,0 +1,18 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/spfx-build/config.2.0.schema.json",
+  "version": "2.0",
+  "bundles": {
+    "appcustomizer-2-application-customizer": {
+      "components": [
+        {
+          "entrypoint": "./lib/extensions/appcustomizer2/Appcustomizer2ApplicationCustomizer.js",
+          "manifest": "./src/extensions/appcustomizer2/Appcustomizer2ApplicationCustomizer.manifest.json"
+        }
+      ]
+    }
+  },
+  "externals": {},
+  "localizedResources": {
+    "Appcustomizer2ApplicationCustomizerStrings": "lib/extensions/appcustomizer2/loc/{locale}.js"
+  }
+}
