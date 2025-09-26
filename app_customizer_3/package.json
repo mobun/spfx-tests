@@ -16,7 +16,8 @@
     "@microsoft/sp-core-library": "1.21.1",
     "@microsoft/decorators": "1.21.1",
     "@microsoft/sp-dialog": "1.21.1",
-    "@microsoft/sp-application-base": "1.21.1"
+    "@microsoft/sp-application-base": "1.21.1",
+    "@microsoft/sp-dynamic-data": "1.21.1"
   },
   "devDependencies": {
     "@microsoft/rush-stack-compiler-5.3": "0.1.0",
@@ -30,5 +31,8 @@
     "gulp": "4.0.2",
     "typescript": "~5.3.3",
     "@microsoft/sp-module-interfaces": "1.21.1"
+  },
+  "volta": {
+    "node": "22.20.0"
   }
 }

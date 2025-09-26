@@ -1,26 +1,23 @@
-import { Log } from '@microsoft/sp-core-library';
 import {
   BaseApplicationCustomizer
 } from '@microsoft/sp-application-base';
-import { Dialog } from '@microsoft/sp-dialog';
+import { Log } from '@microsoft/sp-core-library';
+import { IDynamicDataCallables, IDynamicDataPropertyDefinition } from '@microsoft/sp-dynamic-data';
 
 import * as strings from 'Appcustomizer1ApplicationCustomizerStrings';
 
 const LOG_SOURCE: string = 'Appcustomizer1ApplicationCustomizer';
 
-/**
- * If your command set uses the ClientSideComponentProperties JSON input,
- * it will be deserialized into the BaseExtension.properties object.
- * You can define an interface to describe it.
- */
 export interface IAppcustomizer1ApplicationCustomizerProperties {
-  // This is an example; replace with your own property
+ 
   testMessage: string;
 }
 
-/** A Custom Action which can be run during execution of a Client Side Application */
+
 export default class Appcustomizer1ApplicationCustomizer
   extends BaseApplicationCustomizer<IAppcustomizer1ApplicationCustomizerProperties> {
+
+  private _provider: IDynamicDataCallables | undefined;
 
   public onInit(): Promise<void> {
     Log.info(LOG_SOURCE, `Initialized ${strings.Title}`);
@@ -30,10 +27,34 @@ export default class Appcustomizer1ApplicationCustomizer
       message = '(No properties were provided.)';
     }
 
-    Dialog.alert(`Hello from ${strings.Title}:\n\n${message}`).catch(() => {
-      /* handle error */
-    });
+
+    this._provider = {
+      getPropertyDefinitions: this._getPropertyDefinitions,
+      getPropertyValue: this._getPropertyValue
+    };
+    this.context.dynamicDataSourceManager.initializeSource(this._provider);
 
     return Promise.resolve();
   }
+
+  public onDispose(): void { /* no-op */ }
+
+  private _getPropertyDefinitions = (): ReadonlyArray<IDynamicDataPropertyDefinition> => {
+    return [
+      { id: 'message', title: 'Message from AppCustomizer 1' },
+      { id: 'timestamp', title: 'Timestamp (AppCustomizer 1)' }
+    ];
+  };
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  private _getPropertyValue = (propertyId: string): any => {
+    switch (propertyId) {
+      case 'message':
+        return this.properties.testMessage || 'Hello from AppCustomizer 1';
+      case 'timestamp':
+        return new Date().toISOString();
+      default:
+        return undefined;
+    }
+  };
 }

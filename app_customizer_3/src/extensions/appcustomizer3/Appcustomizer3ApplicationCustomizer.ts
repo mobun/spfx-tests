@@ -1,26 +1,20 @@
-import { Log } from '@microsoft/sp-core-library';
 import {
   BaseApplicationCustomizer
 } from '@microsoft/sp-application-base';
-import { Dialog } from '@microsoft/sp-dialog';
+import { Log } from '@microsoft/sp-core-library';
+import { IDynamicDataSource } from '@microsoft/sp-dynamic-data';
 
 import * as strings from 'Appcustomizer3ApplicationCustomizerStrings';
 
 const LOG_SOURCE: string = 'Appcustomizer3ApplicationCustomizer';
 
-/**
- * If your command set uses the ClientSideComponentProperties JSON input,
- * it will be deserialized into the BaseExtension.properties object.
- * You can define an interface to describe it.
- */
 export interface IAppcustomizer3ApplicationCustomizerProperties {
-  // This is an example; replace with your own property
+
   testMessage: string;
 }
-
-/** A Custom Action which can be run during execution of a Client Side Application */
 export default class Appcustomizer3ApplicationCustomizer
   extends BaseApplicationCustomizer<IAppcustomizer3ApplicationCustomizerProperties> {
+  private _onSourcesChanged?: () => void;
 
   public onInit(): Promise<void> {
     Log.info(LOG_SOURCE, `Initialized ${strings.Title}`);
@@ -30,10 +24,25 @@ export default class Appcustomizer3ApplicationCustomizer
       message = '(No properties were provided.)';
     }
 
-    Dialog.alert(`Hello from ${strings.Title}:\n\n${message}`).catch(() => {
-      /* handle error */
-    });
+  const sources: ReadonlyArray<IDynamicDataSource> = this.context.dynamicDataProvider.getAvailableSources();
+    // eslint-disable-next-line no-console
+  console.log('[AppCustomizer3] Available Dynamic Data Sources:', sources.map(s => ({ id: s.id, metadata: s.metadata })));
+
+    const onSourcesChanged = (): void => {
+      const updated = this.context.dynamicDataProvider.getAvailableSources();
+      // eslint-disable-next-line no-console
+      console.log('[AppCustomizer3] Sources changed:', updated.map(s => ({ id: s.id, metadata: s.metadata })));
+    };
+    this._onSourcesChanged = onSourcesChanged;
+    this.context.dynamicDataProvider.registerAvailableSourcesChanged(onSourcesChanged);
 
     return Promise.resolve();
+  }
+
+  public onDispose(): void {
+    if (this._onSourcesChanged) {
+      this.context.dynamicDataProvider.unregisterAvailableSourcesChanged(this._onSourcesChanged);
+      this._onSourcesChanged = undefined;
+    }
   }
 }
